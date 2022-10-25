@@ -13,7 +13,8 @@ contract buyMeACryptoCoffee {
         address indexed from,
         uint256 timestamp,
         string message,
-        string name
+        string name,
+        uint256 value
     );
 
     constructor() payable {
@@ -27,6 +28,7 @@ contract buyMeACryptoCoffee {
         string message;
         string name;
         uint256 timestamp;
+        uint256 value;
     }
 
     Coffee[] coffee;
@@ -49,11 +51,16 @@ contract buyMeACryptoCoffee {
         totalCoffee += 1;
         console.log("%s has just sent a coffee!", msg.sender);
 
-        coffee.push(Coffee(msg.sender, _message, _name, block.timestamp));
+        coffee.push(Coffee(msg.sender, _message, _name, block.timestamp, _payAmount));
 
         (bool success, ) = owner.call{value: _payAmount}("");
         require(success, "Failed to send money");
 
-        emit NewCoffee(msg.sender, block.timestamp, _message, _name);
+        emit NewCoffee(msg.sender, block.timestamp, _message, _name, _payAmount);
+    }
+
+    function destroySmartContract(address payable _to) public {
+        require(msg.sender == owner, "You are not the owner");
+        selfdestruct(_to);
     }
 }
